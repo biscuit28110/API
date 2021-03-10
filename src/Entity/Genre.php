@@ -2,13 +2,26 @@
 
 namespace App\Entity;
 
-use App\Repository\GenreRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\GenreRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
- * @ORM\Entity(repositoryClass=GenreRepository::class)
+ * @ORM\Entity(repositoryClass="App\Repository\GenreRepository")
+ * @ApiResource(
+ * 
+ *  attributes={
+ *          "order"={
+ *              "libelle":"ASC"
+ *                }
+ * }
+ * 
+ * )
  */
 class Genre
 {
@@ -21,11 +34,14 @@ class Genre
 
     /**
      * @ORM\Column(type="string", length=255)
+     
+     * 
      */
     private $libelle;
 
     /**
-     * @ORM\OneToMany(targetEntity=Livre::class, mappedBy="genre")
+     * @ORM\OneToMany(targetEntity="App\Entity\Livre", mappedBy="genre")
+     * @ApiSubresource()
      */
     private $livres;
 

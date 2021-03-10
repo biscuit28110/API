@@ -2,11 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\PretRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\PretRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
  * @ORM\Entity(repositoryClass=PretRepository::class)
+ * @ApiResource()
  */
 class Pret
 {

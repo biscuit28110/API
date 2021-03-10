@@ -2,13 +2,59 @@
 
 namespace App\Entity;
 
-use App\Repository\LivreRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\LivreRepository;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity(repositoryClass=LivreRepository::class)
+ * @ApiResource(
+ *      attributes={
+ *          "order"={
+ *              "titre":"ASC",
+ *              "prix" : "DESC"
+ *                }
+ * 
+ * })
+ * @ApiFilter(
+ *      RangeFilter::class,
+ *      properties={
+ *          "prix"
+ *          
+ *              }
+ * )
+ * 
+ * * @ApiFilter(
+ *      OrderFilter::class,
+ *      properties={
+ *          "titre"="asc",
+ *          "prix",
+ *          "auteur.nom"="desc"
+ *              }
+ * )
+ * 
+ * * @ApiFilter(
+ *     PropertyFilter::class,
+ *      arguments={
+ *          "parameterName"="properties",
+ *          "overrideDefaultProperties" : false,
+ *          "whitelist"={
+ * 
+ *          "isbn",
+ *          "titre",
+ *          "prix"
+ * }
+ *          
+ *              }
+ * )
+ * )
  */
 class Livre
 {
@@ -52,20 +98,20 @@ class Livre
      */
     private $auteur;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Pret::class, mappedBy="relation")
+      /**
+     * @ORM\Column(type="string", length=255)
      */
-    private $prets;
+    private $annee;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Nationalite::class, inversedBy="relation")
+      /**
+     * @ORM\Column(type="string", length=255)
      */
-    private $nationalite;
+    private $langue;
 
-    /**
-     * @ORM\Column(type="date")
-     */
-    private $date;
+    
+
+
+ 
 
     public function __construct()
     {
@@ -148,58 +194,31 @@ class Livre
 
         return $this;
     }
-
-    /**
-     * @return Collection|Pret[]
-     */
-    public function getPrets(): Collection
+  
+    public function getAnnee(): ?string
     {
-        return $this->prets;
+        return $this->annee;
     }
 
-    public function addPret(Pret $pret): self
+    public function setAnnee(string $annee): self
     {
-        if (!$this->prets->contains($pret)) {
-            $this->prets[] = $pret;
-            $pret->setRelation($this);
-        }
+        $this->annee = $annee;
 
         return $this;
     }
 
-    public function removePret(Pret $pret): self
+    public function getLangue(): ?string
     {
-        if ($this->prets->removeElement($pret)) {
-            // set the owning side to null (unless already changed)
-            if ($pret->getRelation() === $this) {
-                $pret->setRelation(null);
-            }
-        }
+        return $this->langue;
+    }
+
+    public function setLangue(string $langue): self
+    {
+        $this->langue = $langue;
 
         return $this;
     }
+   
 
-    public function getNationalite(): ?Nationalite
-    {
-        return $this->nationalite;
-    }
 
-    public function setNationalite(?Nationalite $nationalite): self
-    {
-        $this->nationalite = $nationalite;
-
-        return $this;
-    }
-
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(\DateTimeInterface $date): self
-    {
-        $this->date = $date;
-
-        return $this;
-    }
 }

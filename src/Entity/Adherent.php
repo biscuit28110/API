@@ -2,13 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\AdherentRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\AdherentRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity(repositoryClass=AdherentRepository::class)
+ * @ApiResource()
  */
 class Adherent
 {
@@ -58,6 +60,11 @@ class Adherent
      * @ORM\OneToMany(targetEntity=Pret::class, mappedBy="adherent")
      */
     private $relation;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $password;
 
     public function __construct()
     {
@@ -179,6 +186,18 @@ class Adherent
                 $relation->setAdherent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
 
         return $this;
     }
