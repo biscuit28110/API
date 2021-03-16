@@ -39,10 +39,13 @@ class Pret
      */
     private $adherent;
 
+  
+
     /**
      * @ORM\ManyToOne(targetEntity=Livre::class, inversedBy="prets")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private $relation;
+    private $livre;
 
     public function getId(): ?int
     {
@@ -97,14 +100,16 @@ class Pret
         return $this;
     }
 
-    public function getRelation(): ?Livre
+  
+
+    public function getLivre(): ?Livre
     {
-        return $this->relation;
+        return $this->livre;
     }
 
-    public function setRelation(?Livre $relation): self
+    public function setLivre(?Livre $livre): self
     {
-        $this->relation = $relation;
+        $this->livre = $livre;
 
         return $this;
     }

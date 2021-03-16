@@ -7,13 +7,24 @@ use App\Repository\AdherentRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass=AdherentRepository::class)
  * @ApiResource()
+ * @UniqueEntity(
+ *      fields={"mail"},
+ *      message="il existe deja un mail {{ value }}", "veuillez saisir un autre mail"
+ * )
  */
-class Adherent
+class Adherent implements UserInterface
 {
+    const ROLE_ADMIN = 'ROLE_ADMIN';
+    const ROLE_MANAGER = 'ROLE_MANAGER';
+    const ROLE_ADHERENT = 'ROLE_ADHERENT';
+    const DEFAULT_ROLE = 'ROLE_ADHERENT';
+    
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -36,15 +47,16 @@ class Adherent
      */
     private $adresse;
 
-    /**
-     * @ORM\Column(type="string", length=255)
+
+     /**
+     * @ORM\Column(type="array", length=255, nullable=true)
      */
-    private $cp;
+    private $roles;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $ville;
+    private $cp;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -69,6 +81,8 @@ class Adherent
     public function __construct()
     {
         $this->relation = new ArrayCollection();
+        $leRole[]= [self::DEFAULT_ROLE];
+        $this->roles=$leRole;
     }
 
     public function getId(): ?int
@@ -124,17 +138,6 @@ class Adherent
         return $this;
     }
 
-    public function getVille(): ?string
-    {
-        return $this->ville;
-    }
-
-    public function setVille(string $ville): self
-    {
-        $this->ville = $ville;
-
-        return $this;
-    }
 
     public function getTel(): ?string
     {
@@ -201,4 +204,82 @@ class Adherent
 
         return $this;
     }
+
+      /**
+     * Returns the roles granted to the user.
+     *
+     *     public function getRoles()
+     *     {
+     *         return ['ROLE_USER'];
+     *     }
+     *
+     * Alternatively, the roles might be stored on a ``roles`` property,
+     * and populated in any number of different ways when the user object
+     * is created.
+     *
+     * @return (Role|string)[] The user roles
+     */
+    public function getRoles(){
+
+        return $this->roles;;
+    }
+
+
+    /**
+     * affecte les roles de l'utilisateur 
+     *
+     * @param array $roles
+     * @return self
+     */
+    public function setRoles(array $roles){
+        $this->roles=$roles;
+        return $this;
+    }
+
+    /**
+     * Returns the password used to authenticate the user.
+     *
+     * This should be the encoded password. On authentication, a plain-text
+     * password will be salted, encoded, and then compared to this value.
+     *
+     * @return string|null The encoded password if any
+     */
+  
+
+    /**
+     * Returns the salt that was originally used to encode the password.
+     *
+     * This can return null if the password was not encoded using a salt.
+     *
+     * @return string|null The salt
+     */
+    public function getSalt(){
+        return null;
+
+    }
+
+    /**
+     * Returns the username used to authenticate the user.
+     *
+     * @return string The username
+     */
+    public function getUsername()
+    
+    {
+        return $this->getMail();
+    }
+    
+
+    /**
+     * Removes sensitive data from the user.
+     *
+     * This is important if, at any given point, sensitive information like
+     * the plain-text password is stored on this object.
+     */
+    public function eraseCredentials()
+    {
+
+    }
+
+
 }

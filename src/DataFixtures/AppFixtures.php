@@ -3,18 +3,25 @@
 namespace App\DataFixtures;
 
 use App\Entity\Adherent;
+use App\Entity\Livre;
+use App\Entity\Pret;
 use Faker\Factory;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use PhpParser\Node\Scalar\MagicConst\Line;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
 {
     private $manager;
     private $faker;
-    public function __construct()
+    private $repoLivre;
+    private $passwordEncoder;
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
 
         $this->faker=Factory::create("fr_FR");
+        $this->passwordEncoder=$passwordEncoder;
         
     }
     public function load(ObjectManager $manager)
@@ -24,6 +31,7 @@ class AppFixtures extends Fixture
 
 
         $this->manager=$manager;
+        $this->repoLivre = $this->manager->getRepository(Livre::class);
         $this->loadAdherent();
         $this->loadPret();
 
@@ -46,26 +54,40 @@ class AppFixtures extends Fixture
             "78062", "78068", "78070", "78071", "78072", "78073", "78076", "78077", "78082", "78084", "78087",
             "78089", "78090", "78092", "78096", "78104", "78107", "78108", "78113", "78117", "78118"
         ];
-        for($i=0;$i=25;$i++){
+        for($i=0;$i<=24;$i++){
 
             $adherent= new Adherent();
             $adherent->setNom($this->faker->lastName())
                      ->setPrenom($this->faker->firstName($genre[mt_rand(0,1)]))
                      ->setAdresse($this->faker->streetAddress())
                      ->setCp($commune[mt_rand(0,sizeof($commune)-1)])
-                     ->setPassword($adherent->getNom())
+  
                      ->setTel($this->faker->phoneNumber())
-                     ->setMail(strtolower($adherent->getNom())."@gmail.com");
-            $this->addReference("adherent0".$i,$adherent);
+                     ->setMail(strtolower($adherent->getNom())."@gmail.com")
+                     ->setPassword($this->passwordEncoder->encodePassword($adherent,$adherent->getNom()));
+            $this->addReference("adherent".$i,$adherent);
             $this->manager->persist($adherent);
         }
 
-        $adherent= new Adherent();
-        $adherent->setNom("Talamaku")
+        $adherentAdmin= new Adherent();
+        $rolesAdmin[]=ADHERENT::ROLE_ADMIN;
+        $adherentAdmin->setNom("Talamaku")
                  ->setPrenom("Traviss")
                  ->setMail("admin@gmail.com")
-                 ->setPassword("Talamaku");
-        $this->manager->persist($adherent);
+                 ->setPassword($this->passwordEncoder->encodePassword($adherent,$adherent->getNom()))
+                 ->setRoles($rolesAdmin);
+        $this->manager->persist($adherentAdmin);
+
+
+
+        $adherentManager= new Adherent();
+        $rolesManager[]=ADHERENT::ROLE_MANAGER;
+        $adherentManager->setNom("Mbenza")
+                 ->setPrenom("Isac")
+                 ->setMail("manager@gmail.com")
+                 ->setPassword($this->passwordEncoder->encodePassword($adherent,$adherent->getNom()))
+                 ->setRoles($rolesManager);
+        $this->manager->persist($adherentManager);
 
 
         $this->manager->flush();
@@ -79,6 +101,26 @@ class AppFixtures extends Fixture
      * @return void
      */
     public function loadPret(){
+        for($i=0;$i<25;$i++){
+
+            $max=mt_rand(1,5);
+            for($j=0;$j<=$max;$j++){
+                $pret=new Pret();
+                $livre=$this->repoLivre->find(mt_rand(1,49));
+                $pret->setLivre($livre)
+                     ->setAdherent($this->getReference("adherent".$i))
+                     ->setDatePret($this->faker->dateTimeBetween('-6 months'));
+                     $dateRetourPrevue=date('Y-m-d H:m-n',strtotime('15 days',$pret->getDatePret()->getTimestamp()));
+                     $dateRetourPrevue=\DateTime::createFromFormat('Y-m-d H:m-n',$dateRetourPrevue);
+                     $pret ->setDateRetourPrevue($dateRetourPrevue);
+
+                     if(mt_rand(1,3)==1){
+                         $pret->setDateRetourReelle($this->faker->dateTimeInInterval($pret->getDatePret(),"+30 days"));
+                     }
+                     $this->manager->persist($pret);
+            }
+        }
+        $this->manager->flush();
 
 
     }

@@ -2,15 +2,13 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\AuteurRepository;
-use Doctrine\Common\Collections\Collection;
-use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=AuteurRepository::class)
- * @ApiResource()
  */
 class Auteur
 {
@@ -31,17 +29,16 @@ class Auteur
      */
     private $prenom;
 
-  
+    /**
+     * @ORM\ManyToOne(targetEntity=Nationalite::class, inversedBy="auteur")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $Relation;
 
     /**
-     * @ORM\OneToMany(targetEntity=Livre::class, mappedBy="auteur")
+     * @ORM\OneToMany(targetEntity=Livre::class, mappedBy="auteurs")
      */
     private $livres;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Nationalite::class, inversedBy="auteurs")
-     */
-    private $relation;
 
     public function __construct()
     {

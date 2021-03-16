@@ -108,6 +108,12 @@ class Livre
      */
     private $langue;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Pret::class, mappedBy="livre")
+     */
+    private $prets;
+
+
     
 
 
@@ -218,6 +224,38 @@ class Livre
 
         return $this;
     }
+
+    /**
+     * @return Collection|Pret[]
+     */
+    public function getPrets(): Collection
+    {
+        return $this->prets;
+    }
+
+    public function addPret(Pret $pret): self
+    {
+        if (!$this->prets->contains($pret)) {
+            $this->prets[] = $pret;
+            $pret->setLivre($this);
+        }
+
+        return $this;
+    }
+
+    public function removePret(Pret $pret): self
+    {
+        if ($this->prets->removeElement($pret)) {
+            // set the owning side to null (unless already changed)
+            if ($pret->getLivre() === $this) {
+                $pret->setLivre(null);
+            }
+        }
+
+        return $this;
+    }
+
+    
    
 
 

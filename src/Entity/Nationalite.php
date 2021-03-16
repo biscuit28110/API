@@ -38,10 +38,16 @@ class Nationalite
      */
     private $auteurs;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Auteur::class, mappedBy="Relation")
+     */
+    private $auteur;
+
     public function __construct()
     {
         $this->auteurs = new ArrayCollection();
         $this->relation = new ArrayCollection();
+        $this->auteur = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -119,5 +125,13 @@ class Nationalite
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Auteur[]
+     */
+    public function getAuteur(): Collection
+    {
+        return $this->auteur;
     }
 }
